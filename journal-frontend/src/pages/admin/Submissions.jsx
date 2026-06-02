@@ -165,12 +165,6 @@ function Submissions() {
                       >
                         Reject
                       </button>
-                      <button
-                        style={{ marginLeft: 10, padding: '8px 12px' }}
-                        onClick={() => window.open(`/pdf-viewer?id=${paper._id}`, '_blank')}
-                      >
-                        Open
-                      </button>
                       {paper.status === "Accepted" && (
                         <button
                           style={{

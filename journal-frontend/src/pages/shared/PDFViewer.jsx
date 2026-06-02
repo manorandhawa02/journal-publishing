@@ -4,8 +4,7 @@ import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import { getPaperById } from "../../services/paperService";
 
-// Set worker URL from node_modules
-pdfjs.GlobalWorkerOptions.workerSrc = `${import.meta.env.BASE_URL}node_modules/pdfjs-dist/build/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 function PDFViewer({ fileUrl: propFileUrl }) {
   const [params] = useSearchParams();
@@ -62,12 +61,6 @@ function PDFViewer({ fileUrl: propFileUrl }) {
     setNumPages(numPages);
   }
 
-  function onDocumentLoadError(err) {
-    console.error("PDF load error:", err);
-    setError(`Failed to load PDF: ${err?.message || 'Unknown error'}`);
-    setLoading(false);
-  }
-
   if (loading) {
     return <h3 style={{ textAlign: "center", padding: "20px" }}>Loading PDF...</h3>;
   }
@@ -83,11 +76,9 @@ function PDFViewer({ fileUrl: propFileUrl }) {
   return (
     <div style={{ textAlign: "center", padding: "10px" }}>
       {/* ================= PDF VIEWER ================= */}
-      {url && !error && (
-        <Document file={url} onLoadSuccess={onDocumentLoadSuccess} onLoadError={onDocumentLoadError}>
-          <Page pageNumber={pageNumber} />
-        </Document>
-      )}
+      <Document file={url} onLoadSuccess={onDocumentLoadSuccess}>
+        <Page pageNumber={pageNumber} />
+      </Document>
 
       {/* ================= CONTROLS ================= */}
       <div style={{ marginTop: 10 }}>
@@ -119,24 +110,6 @@ function PDFViewer({ fileUrl: propFileUrl }) {
       >
         Download PDF
       </a>
-
-      {error && (
-        <div style={{ marginTop: 20, padding: 15, background: '#fff3cd', borderRadius: 6, border: '1px solid #ffc107' }}>
-          <p style={{ color: '#856404', margin: '0 0 10px 0', fontWeight: 'bold' }}>⚠️ PDF Viewer Error</p>
-          <p style={{ color: '#856404', margin: '0 0 10px 0', fontSize: 14 }}>{error}</p>
-          <p style={{ color: '#856404', fontSize: 12, margin: '0 0 10px 0' }}>You can still:</p>
-          <ul style={{ color: '#856404', fontSize: 12, margin: '5px 0', textAlign: 'left', paddingLeft: 20 }}>
-            <li><a href={url} target="_blank" rel="noreferrer" style={{ color: '#0056b3' }}>Download PDF directly</a></li>
-            <li><a href={url} target="_blank" rel="noreferrer" style={{ color: '#0056b3' }}>View on Cloudinary</a></li>
-          </ul>
-          <p style={{ color: '#856404', fontSize: 11, margin: '10px 0 0 0' }}>
-            <strong>File URL:</strong> <br />
-            <code style={{ wordBreak: 'break-all', backgroundColor: '#f5f5f5', padding: '5px', borderRadius: '3px', display: 'block', marginTop: '5px' }}>
-              {url}
-            </code>
-          </p>
-        </div>
-      )}
     </div>
   );
 }

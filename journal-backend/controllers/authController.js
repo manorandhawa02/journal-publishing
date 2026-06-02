@@ -125,7 +125,7 @@ exports.googleLoginSuccess = async (req, res) => {
     );
 
     res.redirect(
-      `http://localhost:5173/google-success?token=${token}&role=${user.role}`
+      `${process.env.FRONTEND_URL || "http://localhost:5173"}/google-success?token=${token}&role=${user.role}`
     );
   } catch (error) {
     res.status(500).json({

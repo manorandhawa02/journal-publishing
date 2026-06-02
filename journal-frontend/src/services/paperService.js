@@ -1,13 +1,8 @@
 import API from "./api";
-import axios from "axios";
 
 // ================= SUBMIT PAPER =================
 export const submitPaper = async (formData) => {
-  const res = await API.post(
-    "/paper/submit",
-    formData
-  );
-
+  const res = await API.post("/paper/submit", formData);
   return res.data;
 };
 
@@ -27,77 +22,26 @@ export const getMyPapers = async () => {
 
 // ================= GET SINGLE PAPER =================
 export const getPaperById = async (id) => {
-  try {
-    const res = await API.get(`/paper/${id}`);
-    return res.data;
-  } catch (err) {
-    // If not found on /paper, try published collection
-    if (err.response && err.response.status === 404) {
-      const res2 = await API.get(`/published/${id}`);
-      return res2.data;
-    }
-
-    throw err;
-  }
-};
-
-// ================= ASSIGN REVIEWER =================
-export const assignReviewer = async (
-  id,
-  reviewerId
-) => {
-
-  const token = localStorage.getItem("token");
-
-  const res = await axios.post(
-    `http://localhost:5000/api/review/${id}/assign`,
-    { reviewerId },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+  const res = await API.get(`/paper/${id}`);
 
   return res.data;
 };
 
+// ================= ASSIGN REVIEWER =================
+export const assignReviewer = async (id, reviewerId) => {
+  const res = await API.post(`/review/${id}/assign`, { reviewerId });
+  return res.data;
+};
+
 // ================= SUBMIT REVIEW =================
-export const submitReview = async (
-  id,
-  data
-) => {
-
-  const token = localStorage.getItem("token");
-
-  const res = await axios.post(
-    `http://localhost:5000/api/review/${id}/submit`,
-    data,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
+export const submitReview = async (id, data) => {
+  const res = await API.post(`/review/${id}/submit`, data);
   return res.data;
 };
 
 // ================= ACCEPT PAPER =================
 export const acceptPaper = async (id) => {
-
-  const token = localStorage.getItem("token");
-
-  const res = await axios.put(
-    `http://localhost:5000/api/paper/${id}/accept`,
-    {},
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
+  const res = await API.put(`/paper/${id}/accept`);
   return res.data;
 };
 
