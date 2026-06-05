@@ -8,6 +8,8 @@ const {
   assignReviewer,
   submitReview,
   getAssignedPapers,
+  getReviewerProfile,
+updateReviewerProfile,
 } = require("../controllers/reviewController");
 
 // ADMIN assigns reviewer
@@ -29,4 +31,18 @@ router.post(
 // REVIEWER dashboard
 router.get("/assigned", protect, authorizeRoles("reviewer"), getAssignedPapers);
 
+
+router.get(
+  "/profile",
+  protect,
+  authorizeRoles("reviewer"),
+  getReviewerProfile
+);
+
+router.put(
+  "/profile",
+  protect,
+  authorizeRoles("reviewer"),
+  updateReviewerProfile
+);
 module.exports = router;

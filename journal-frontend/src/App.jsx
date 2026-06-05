@@ -19,6 +19,7 @@ import AssignedPapers from "./pages/reviewer/AssignedPapers";
 import PublishIssues from "./pages/admin/PublishIssues";
 import GoogleSuccess from "./pages/GoogleSuccess";
 import PDFViewer from "./pages/shared/PDFViewer";
+import ReviewerProfile from "./pages/reviewer/ReviewerProfile";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 function App() {
@@ -47,6 +48,8 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route path="/reviewer/profile" element={<ReviewerProfile />} />
 
         <Route
           path="/pdf-viewer"

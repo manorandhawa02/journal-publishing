@@ -11,7 +11,7 @@ function SubmitPaper() {
     abstract: "",
     authorName: "",
     keywords: "",
-    journalCategory: "Computer Science",
+    journalCategory: "",
   });
 
   const [file, setFile] = useState(null);
@@ -55,7 +55,7 @@ function SubmitPaper() {
         abstract: "",
         authorName: "",
         keywords: "",
-        journalCategory: "Computer Science",
+        journalCategory: "",
       });
 
       setFile(null);
@@ -121,13 +121,14 @@ function SubmitPaper() {
             name="journalCategory"
             value={formData.journalCategory}
             onChange={handleChange}
+            required
           >
+            <option value="">Select Category</option>
             <option>Artificial Intelligence</option>
             <option>Computer Science</option>
             <option>Software Engineering</option>
             <option>Data Science</option>
             <option>Cyber Security</option>
-            <option>Healthcare</option>
             <option>Blockchain</option>
             <option>IoT</option>
             <option>Cloud Computing</option>

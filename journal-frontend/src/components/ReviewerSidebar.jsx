@@ -6,6 +6,7 @@ function ReviewerSidebar() {
   const menuItems = [
     { name: "Dashboard", path: "/reviewer" },
     { name: "Assigned Papers", path: "/reviewer/papers" },
+    { name: "My Profile", path: "/reviewer/profile" },
   
   ];
 

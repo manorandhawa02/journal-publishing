@@ -1,6 +1,6 @@
 const Paper = require("../models/Paper");
 const Review = require("../models/Review");
-
+const User = require("../models/User");
 // ======================================================
 // ASSIGN REVIEWER
 // ======================================================
@@ -31,6 +31,15 @@ exports.assignReviewer = async (req, res) => {
     }
 
     paper.assignedReviewers.push(reviewerId);
+
+    await User.findByIdAndUpdate(
+  reviewerId,
+  {
+    $inc: {
+      activeAssignments: 1,
+    },
+  }
+);
 
     const review = await Review.create({
       paper: paper._id,
@@ -106,6 +115,18 @@ exports.submitReview = async (req, res) => {
     review.submittedAt = new Date();
 
     await review.save();
+    const reviewer = await User.findById(req.user.id);
+
+if (reviewer) {
+  reviewer.activeAssignments = Math.max(
+    0,
+    reviewer.activeAssignments - 1
+  );
+
+  reviewer.reviewsCompleted += 1;
+
+  await reviewer.save();
+}
 
     const paper = await Paper.findById(paperId);
 
@@ -160,6 +181,66 @@ exports.getAssignedPapers = async (req, res) => {
       .sort({ createdAt: -1 });
 
     res.json(papers);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+
+// ================= GET PROFILE =================
+exports.getReviewerProfile = async (req, res) => {
+  try {
+    const reviewer = await User.findById(req.user.id).select("-password");
+
+    res.json(reviewer);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+// ================= UPDATE PROFILE =================
+exports.updateReviewerProfile = async (req, res) => {
+  try {
+    const reviewer = await User.findById(req.user.id);
+
+    if (!reviewer) {
+      return res.status(404).json({
+        message: "Reviewer not found",
+      });
+    }
+
+    const {
+      institution,
+      designation,
+      experienceYears,
+      bio,
+      expertiseAreas,
+      researchInterests,
+      orcid,
+      journalCategory,
+    } = req.body;
+
+    reviewer.institution = institution;
+    reviewer.designation = designation;
+    reviewer.experienceYears = experienceYears;
+    reviewer.bio = bio;
+    reviewer.expertiseAreas = expertiseAreas;
+    reviewer.researchInterests = researchInterests;
+    reviewer.orcid = orcid;
+    reviewer.journalCategory = journalCategory;
+
+    reviewer.profileCompleted = true;
+
+    await reviewer.save();
+
+    res.json({
+      message: "Profile updated successfully",
+      reviewer,
+    });
   } catch (error) {
     res.status(500).json({
       message: error.message,

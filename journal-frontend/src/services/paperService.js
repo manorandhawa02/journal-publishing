@@ -1,4 +1,5 @@
 import API from "./api";
+import axios from "axios";
 
 // ================= SUBMIT PAPER =================
 export const submitPaper = async (formData) => {
@@ -125,5 +126,15 @@ export const getAuthorStats = async () => {
 
 export const getAssignedPapers = async () => {
   const res = await API.get("/review/assigned");
+  return res.data;
+};
+
+export const getReviewerProfile = async () => {
+  const res = await API.get("/review/profile");
+  return res.data;
+};
+
+export const updateReviewerProfile = async (data) => {
+  const res = await API.put("/review/profile", data);
   return res.data;
 };
