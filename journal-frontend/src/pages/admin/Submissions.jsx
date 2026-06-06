@@ -11,7 +11,8 @@ import {
 
 function Submissions() {
   const [submissions, setSubmissions] = useState([]);
-  const [reviewers, setReviewers] = useState([]);
+  const [recommendedReviewers, setRecommendedReviewers] = useState({});
+  const [selectedPaper, setSelectedPaper] = useState(null);
 
   useEffect(() => {
     fetchPapers();
@@ -23,6 +24,9 @@ function Submissions() {
       const res = await API.get("/paper");
 
       setSubmissions(res.data);
+      res.data.forEach((paper) => {
+        fetchRecommendedReviewers(paper._id);
+      });
     } catch (err) {
       console.log(err);
     }
@@ -33,6 +37,19 @@ function Submissions() {
       const res = await API.get("/admin/reviewers");
 
       setReviewers(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const fetchRecommendedReviewers = async (paperId) => {
+    try {
+      const res = await API.get(`/admin/recommended-reviewers/${paperId}`);
+
+      setRecommendedReviewers((prev) => ({
+        ...prev,
+        [paperId]: res.data,
+      }));
     } catch (err) {
       console.log(err);
     }
@@ -88,7 +105,8 @@ function Submissions() {
                 <th style={thStyle}>Title</th>
                 <th style={thStyle}>Author</th>
                 <th style={thStyle}>Status</th>
-                <th style={thStyle}>Reviewer</th>
+                <th style={thStyle}>Category</th>
+                <th style={thStyle}>Assigned Reviewer</th>
                 <th style={thStyle}>Actions</th>
               </tr>
             </thead>
@@ -101,6 +119,7 @@ function Submissions() {
                     {paper.submittedBy?.name || "Unknown"}
                   </td>
                   <td style={tdStyle}>{paper.status}</td>
+                  <td style={tdStyle}>{paper.journalCategory}</td>
                   <td style={tdStyle}>
                     {paper.assignedReviewers?.length > 0
                       ? paper.assignedReviewers
@@ -125,17 +144,10 @@ function Submissions() {
                               },
                             );
 
-                            console.log("ASSIGN SUCCESS:", res.data);
-
-                            alert(
-                              res.data.message ||
-                                "Reviewer Assigned Successfully",
-                            );
+                            alert(res.data.message);
 
                             fetchPapers();
                           } catch (err) {
-                            console.log("ASSIGN ERROR:", err.response);
-
                             alert(
                               err.response?.data?.message ||
                                 "Assignment Failed",
@@ -143,11 +155,20 @@ function Submissions() {
                           }
                         }}
                       >
-                        <option value="">Select Reviewer</option>
+                        <option value="">Recommended Reviewers</option>
 
-                        {reviewers.map((reviewer) => (
-                          <option key={reviewer._id} value={reviewer._id}>
-                            {reviewer.name}
+                        {recommendedReviewers[paper._id]?.map((item) => (
+                          <option
+                            key={item.reviewer._id}
+                            value={item.reviewer._id}
+                          >
+                            {item.reviewer.name}
+                            {" | "}
+                            {item.reviewer.designation}
+                            {" | "}
+                            Exp: {item.reviewer.experienceYears} yrs
+                            {" | "}
+                            Reviews: {item.reviewer.reviewsCompleted}
                           </option>
                         ))}
                       </select>

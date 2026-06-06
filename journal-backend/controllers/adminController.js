@@ -5,8 +5,11 @@ const Review = require("../models/Review");
 // ================= REVIEWERS =================
 exports.getReviewers = async (req, res) => {
   try {
-    const reviewers = await User.find({ role: "reviewer" }).select(
-      "_id name email",
+    const reviewers = await User.find({
+      role: "reviewer",
+      profileCompleted: true,
+    }).select(
+      "_id name email institution designation journalCategory expertiseAreas activeAssignments reviewsCompleted experienceYears",
     );
 
     res.json(reviewers);
@@ -55,7 +58,6 @@ exports.assignReviewers = async (req, res) => {
   }
 };
 
-
 // Get Author Stats
 exports.getAuthorStats = async (req, res) => {
   try {
@@ -82,10 +84,8 @@ exports.getAuthorStats = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-  
 
-
-// Admin stats 
+// Admin stats
 exports.getAdminStats = async (req, res) => {
   try {
     const total = await Paper.countDocuments();
@@ -145,3 +145,53 @@ exports.getAdminStats = async (req, res) => {
   }
 };
 
+// Recommended reviewers
+exports.getRecommendedReviewers = async (req, res) => {
+  try {
+    const paper = await Paper.findById(req.params.paperId);
+
+    if (!paper) {
+      return res.status(404).json({
+        message: "Paper not found",
+      });
+    }
+
+    const reviewers = await User.find({
+      role: "reviewer",
+      profileCompleted: true,
+    });
+
+    const rankedReviewers = reviewers.map((reviewer) => {
+      let score = 0;
+
+      // CATEGORY
+      if (reviewer.journalCategory === paper.journalCategory) {
+        score += 40;
+      }
+
+      // KEYWORD MATCH
+      const matchedKeywords = reviewer.expertiseAreas.filter((area) =>
+        paper.keywords.includes(area),
+      ).length;
+
+      score += matchedKeywords * 15;
+
+      // EXPERIENCE
+      score += Math.min(reviewer.experienceYears, 20);
+
+      // REVIEW HISTORY
+      score += Math.min(reviewer.reviewsCompleted, 15);
+
+      // WORKLOAD PENALTY
+      score -= reviewer.activeAssignments * 5;
+    });
+
+    rankedReviewers.sort((a, b) => b.score - a.score);
+
+    res.json(rankedReviewers);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};

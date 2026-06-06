@@ -6,6 +6,8 @@ import {
 } from "../../services/paperService";
 
 function ReviewerProfile() {
+  const [profileStats, setProfileStats] = useState(null);
+
   const [formData, setFormData] = useState({
     institution: "",
     designation: "",
@@ -25,17 +27,16 @@ function ReviewerProfile() {
     try {
       const data = await getReviewerProfile();
 
+      setProfileStats(data);
+
       setFormData({
         institution: data.institution || "",
         designation: data.designation || "",
         experienceYears: data.experienceYears || "",
         orcid: data.orcid || "",
-        journalCategory:
-          data.journalCategory || "",
-        expertiseAreas:
-          data.expertiseAreas?.join(", ") || "",
-        researchInterests:
-          data.researchInterests?.join(", ") || "",
+        journalCategory: data.journalCategory || "",
+        expertiseAreas: data.expertiseAreas?.join(", ") || "",
+        researchInterests: data.researchInterests?.join(", ") || "",
         bio: data.bio || "",
       });
     } catch (error) {
@@ -67,6 +68,8 @@ function ReviewerProfile() {
       });
 
       alert("Profile updated successfully");
+
+      loadProfile();
     } catch (error) {
       console.log(error);
       alert("Failed to update profile");
@@ -75,51 +78,95 @@ function ReviewerProfile() {
 
   return (
     <ReviewerLayout>
-      <h2 style={titleStyle}>My Reviewer Profile</h2>
+      {/* HEADER */}
+
+      <div style={headerCard}>
+        <div style={avatar}>
+          {profileStats?.name?.charAt(0)?.toUpperCase() || "R"}
+        </div>
+
+        <div>
+          <h1 style={nameStyle}>
+            {profileStats?.name || "Reviewer"}
+          </h1>
+
+          <p style={designationStyle}>
+            {profileStats?.designation || "Reviewer"}
+          </p>
+
+          <p style={institutionStyle}>
+            {profileStats?.institution || "Institution Not Added"}
+          </p>
+
+          <span style={categoryBadge}>
+            {profileStats?.journalCategory}
+          </span>
+        </div>
+      </div>
+
+      {/* STATS */}
+
+      <div style={statsGrid}>
+        <StatCard
+          title="Completed Reviews"
+          value={profileStats?.reviewsCompleted || 0}
+        />
+
+        <StatCard
+          title="Active Assignments"
+          value={profileStats?.activeAssignments || 0}
+        />
+
+        <StatCard
+          title="Experience"
+          value={`${profileStats?.experienceYears || 0} Years`}
+        />
+      </div>
+
+      {/* PROFILE SUMMARY */}
+
+      <div style={summaryCard}>
+        <h2 style={sectionTitle}>Professional Biography</h2>
+
+        <p>
+          {profileStats?.bio ||
+            "No biography available. Add your professional background and research achievements."}
+        </p>
+      </div>
+
+      {/* FORM */}
 
       <form onSubmit={handleSubmit} style={formStyle}>
-        <div style={inputGroup}>
-          <label>Institution</label>
+        <h2 style={sectionTitle}>Reviewer Information</h2>
 
-          <input
-            type="text"
+        <div style={grid}>
+          <InputField
+            label="Institution"
             name="institution"
             value={formData.institution}
             onChange={handleChange}
           />
-        </div>
 
-        <div style={inputGroup}>
-          <label>Designation</label>
-
-          <input
-            type="text"
+          <InputField
+            label="Designation"
             name="designation"
             value={formData.designation}
             onChange={handleChange}
           />
-        </div>
 
-        <div style={inputGroup}>
-          <label>Experience Years</label>
-
-          <input
-            type="number"
+          <InputField
+            label="Experience Years"
             name="experienceYears"
+            type="number"
             value={formData.experienceYears}
             onChange={handleChange}
           />
-        </div>
 
-        <div style={inputGroup}>
-          <label>ORCID</label>
-
-          <input
-            type="text"
+          <InputField
+            label="ORCID"
             name="orcid"
             value={formData.orcid}
             onChange={handleChange}
-            placeholder="0000-0000-0000-0000"
           />
         </div>
 
@@ -130,10 +177,8 @@ function ReviewerProfile() {
             name="journalCategory"
             value={formData.journalCategory}
             onChange={handleChange}
-            required
-            
+            style={inputStyle}
           >
-            
             <option>Artificial Intelligence</option>
             <option>Computer Science</option>
             <option>Software Engineering</option>
@@ -150,11 +195,12 @@ function ReviewerProfile() {
           <label>Expertise Areas</label>
 
           <input
+            style={inputStyle}
             type="text"
             name="expertiseAreas"
             value={formData.expertiseAreas}
             onChange={handleChange}
-            placeholder="Machine Learning, Deep Learning, NLP"
+            placeholder="Machine Learning, NLP, Deep Learning"
           />
         </div>
 
@@ -162,11 +208,12 @@ function ReviewerProfile() {
           <label>Research Interests</label>
 
           <input
+            style={inputStyle}
             type="text"
             name="researchInterests"
             value={formData.researchInterests}
             onChange={handleChange}
-            placeholder="Medical AI, LLMs, Computer Vision"
+            placeholder="Computer Vision, LLMs, Medical AI"
           />
         </div>
 
@@ -174,15 +221,15 @@ function ReviewerProfile() {
           <label>Biography</label>
 
           <textarea
-            rows="5"
+            rows="6"
             name="bio"
             value={formData.bio}
             onChange={handleChange}
-            placeholder="Write a short professional biography..."
+            style={textareaStyle}
           />
         </div>
 
-        <button type="submit" style={buttonStyle}>
+        <button type="submit" style={saveBtn}>
           Save Profile
         </button>
       </form>
@@ -190,18 +237,125 @@ function ReviewerProfile() {
   );
 }
 
-const titleStyle = {
-  marginBottom: "30px",
+/* COMPONENTS */
+
+function StatCard({ title, value }) {
+  return (
+    <div style={statCard}>
+      <h2>{value}</h2>
+      <p>{title}</p>
+    </div>
+  );
+}
+
+function InputField({
+  label,
+  name,
+  value,
+  onChange,
+  type = "text",
+}) {
+  return (
+    <div style={inputGroup}>
+      <label>{label}</label>
+
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        style={inputStyle}
+      />
+    </div>
+  );
+}
+
+/* STYLES */
+
+const headerCard = {
+  background:
+    "linear-gradient(135deg,#0B3C5D,#1F5C89)",
+  color: "white",
+  padding: "35px",
+  borderRadius: "20px",
+  display: "flex",
+  gap: "25px",
+  alignItems: "center",
+  marginBottom: "25px",
+};
+
+const avatar = {
+  width: "90px",
+  height: "90px",
+  borderRadius: "50%",
+  background: "rgba(255,255,255,0.2)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontSize: "38px",
+  fontWeight: "bold",
+};
+
+const nameStyle = {
+  margin: 0,
   fontSize: "30px",
-  fontWeight: "700",
+};
+
+const designationStyle = {
+  margin: "6px 0",
+};
+
+const institutionStyle = {
+  marginBottom: "10px",
+};
+
+const categoryBadge = {
+  background: "rgba(255,255,255,0.2)",
+  padding: "8px 14px",
+  borderRadius: "30px",
+};
+
+const statsGrid = {
+  display: "grid",
+  gridTemplateColumns:
+    "repeat(auto-fit,minmax(220px,1fr))",
+  gap: "20px",
+  marginBottom: "25px",
+};
+
+const statCard = {
+  background: "white",
+  padding: "25px",
+  borderRadius: "16px",
+  textAlign: "center",
+  boxShadow: "0 8px 20px rgba(0,0,0,0.06)",
+};
+
+const summaryCard = {
+  background: "white",
+  padding: "25px",
+  borderRadius: "16px",
+  marginBottom: "25px",
+  boxShadow: "0 8px 20px rgba(0,0,0,0.06)",
+};
+
+const sectionTitle = {
+  color: "#0B3C5D",
+  marginBottom: "20px",
 };
 
 const formStyle = {
   background: "white",
   padding: "35px",
-  borderRadius: "15px",
-  maxWidth: "800px",
-  boxShadow: "0 8px 20px rgba(0,0,0,0.05)",
+  borderRadius: "18px",
+  boxShadow: "0 8px 20px rgba(0,0,0,0.06)",
+};
+
+const grid = {
+  display: "grid",
+  gridTemplateColumns:
+    "repeat(auto-fit,minmax(250px,1fr))",
+  gap: "20px",
 };
 
 const inputGroup = {
@@ -210,13 +364,26 @@ const inputGroup = {
   marginBottom: "20px",
 };
 
-const buttonStyle = {
-  backgroundColor: "#0B3C5D",
-  color: "white",
-  padding: "12px 20px",
-  border: "none",
+const inputStyle = {
+  padding: "12px",
   borderRadius: "8px",
+  border: "1px solid #ddd",
+};
+
+const textareaStyle = {
+  padding: "12px",
+  borderRadius: "8px",
+  border: "1px solid #ddd",
+};
+
+const saveBtn = {
+  background: "#0B3C5D",
+  color: "white",
+  border: "none",
+  padding: "14px 24px",
+  borderRadius: "10px",
   cursor: "pointer",
+  fontSize: "15px",
 };
 
 export default ReviewerProfile;

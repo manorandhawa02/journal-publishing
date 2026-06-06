@@ -18,11 +18,17 @@ exports.uploadPaper = async (req, res) => {
 
     const { title, abstract, authorName, keywords, journalCategory } = req.body;
 
+    let parsedKeywords = [];
+
+    if (keywords) {
+      parsedKeywords = JSON.parse(keywords);
+    }
+
     const paper = await Paper.create({
       title,
       abstract,
       authorName,
-      keywords: keywords ? keywords.split(",") : [],
+      keywords: parsedKeywords,
       submittedBy: req.user.id,
       fileUrl: result.secure_url,
       journalCategory,

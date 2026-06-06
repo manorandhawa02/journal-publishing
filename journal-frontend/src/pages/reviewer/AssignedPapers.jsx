@@ -38,12 +38,17 @@ function AssignedPapers() {
             <p>
               <b>Status:</b> {paper.status}
             </p>
+            <p>
+              <b>Category:</b> {paper.journalCategory}
+            </p>
+
+            <p>
+              <b>Keywords:</b> {paper.keywords?.join(", ")}
+            </p>
 
             <button
               style={btnStyle}
-              onClick={() =>
-                navigate(`/reviewer/review/${paper._id}`)
-              }
+              onClick={() => navigate(`/reviewer/review/${paper._id}`)}
             >
               Review Paper
             </button>

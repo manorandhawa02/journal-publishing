@@ -8,6 +8,7 @@ const {
   getReviewers,
   getAdminStats,
   getAuthorStats,
+  getRecommendedReviewers,
 } = require("../controllers/adminController");
 
 // ================= ADMIN STATS =================
@@ -32,5 +33,15 @@ router.get(
   authorizeRoles("admin"),
   getReviewers
 );
+
+
+router.get(
+  "/recommended-reviewers/:paperId",
+  protect,
+  authorizeRoles("admin"),
+  getRecommendedReviewers
+);
+
+
 
 module.exports = router;

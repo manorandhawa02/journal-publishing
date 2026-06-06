@@ -138,3 +138,13 @@ export const updateReviewerProfile = async (data) => {
   const res = await API.put("/review/profile", data);
   return res.data;
 };
+
+
+
+export const getRecommendedReviewers = async (paperId) => {
+  const res = await API.get(
+    `/admin/recommended-reviewers/${paperId}`
+  );
+
+  return res.data;
+};
