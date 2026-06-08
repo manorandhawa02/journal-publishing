@@ -13,6 +13,7 @@ function Submissions() {
   const [submissions, setSubmissions] = useState([]);
   const [recommendedReviewers, setRecommendedReviewers] = useState({});
   const [selectedPaper, setSelectedPaper] = useState(null);
+  const [reviewers, setReviewers] = useState([]);
 
   useEffect(() => {
     fetchPapers();
@@ -22,13 +23,14 @@ function Submissions() {
   const fetchPapers = async () => {
     try {
       const res = await API.get("/paper");
+      console.log("PAPERS RESPONSE:", res.data);
 
       setSubmissions(res.data);
       res.data.forEach((paper) => {
         fetchRecommendedReviewers(paper._id);
       });
     } catch (err) {
-      console.log(err);
+      console.log("PAPER ERROR:",err);
     }
   };
 
@@ -46,12 +48,19 @@ function Submissions() {
     try {
       const res = await API.get(`/admin/recommended-reviewers/${paperId}`);
 
+      console.log(
+      "RECOMMENDED REVIEWERS",
+      paperId,
+      res.data
+    );
+
       setRecommendedReviewers((prev) => ({
         ...prev,
         [paperId]: res.data,
       }));
     } catch (err) {
-      console.log(err);
+      console.log(
+        "RECOMMENDER ERROR:", err);
     }
   };
 
@@ -157,20 +166,22 @@ function Submissions() {
                       >
                         <option value="">Recommended Reviewers</option>
 
-                        {recommendedReviewers[paper._id]?.map((item) => (
-                          <option
-                            key={item.reviewer._id}
-                            value={item.reviewer._id}
-                          >
-                            {item.reviewer.name}
-                            {" | "}
-                            {item.reviewer.designation}
-                            {" | "}
-                            Exp: {item.reviewer.experienceYears} yrs
-                            {" | "}
-                            Reviews: {item.reviewer.reviewsCompleted}
-                          </option>
-                        ))}
+                        {recommendedReviewers[paper._id]
+                          ?.filter((item) => item?.reviewer)
+                          .map((item) => (
+                            <option
+                              key={item?.reviewer?._id}
+                              value={item?.reviewer?._id}
+                            >
+                              {item.reviewer.name}
+                              {" | "}
+                              {item.reviewer.designation}
+                              {" | "}
+                              Exp: {item.reviewer.experienceYears} yrs
+                              {" | "}
+                              Reviews: {item.reviewer.reviewsCompleted}
+                            </option>
+                          ))}
                       </select>
 
                       <button

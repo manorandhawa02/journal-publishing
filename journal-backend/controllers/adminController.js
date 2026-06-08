@@ -164,34 +164,49 @@ exports.getRecommendedReviewers = async (req, res) => {
     const rankedReviewers = reviewers.map((reviewer) => {
       let score = 0;
 
-      // CATEGORY
+      // Category Match
       if (reviewer.journalCategory === paper.journalCategory) {
         score += 40;
       }
 
-      // KEYWORD MATCH
-      const matchedKeywords = reviewer.expertiseAreas.filter((area) =>
-        paper.keywords.includes(area),
-      ).length;
+      // Expertise Match
+      const matchedKeywords =
+        reviewer.expertiseAreas?.filter((area) =>
+          paper.keywords?.some(
+            (keyword) =>
+              keyword.toLowerCase().trim() === area.toLowerCase().trim(),
+          ),
+        ).length || 0;
 
       score += matchedKeywords * 15;
 
-      // EXPERIENCE
-      score += Math.min(reviewer.experienceYears, 20);
+      // Experience
+      score += reviewer.experienceYears || 0;
 
-      // REVIEW HISTORY
-      score += Math.min(reviewer.reviewsCompleted, 15);
+      // Review History
+      score += reviewer.reviewsCompleted || 0;
 
-      // WORKLOAD PENALTY
-      score -= reviewer.activeAssignments * 5;
+      // Workload
+      score -= (reviewer.activeAssignments || 0) * 5;
+
+      return {
+        reviewer,
+        score,
+      };
     });
 
     rankedReviewers.sort((a, b) => b.score - a.score);
 
     res.json(rankedReviewers);
+
+    const filtered = rankedReviewers.filter((item) => item.reviewer);
+    res.json(filtered);
   } catch (error) {
     res.status(500).json({
       message: error.message,
     });
   }
+  console.log("PAPER CATEGORY:", paper.journalCategory);
+
+  console.log("REVIEWERS FOUND:", reviewers.length);
 };
