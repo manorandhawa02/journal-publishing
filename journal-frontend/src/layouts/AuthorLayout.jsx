@@ -19,9 +19,9 @@ function AuthorLayout({ children }) {
 
 const contentStyle = {
   flex: 1,
-  padding: "40px",
-  backgroundColor: "#F4F6F9",
-  minHeight: "100vh"
+  padding: "35px",
+  background: "#F8FAFC",
+  minHeight: "100vh",
 };
 
 export default AuthorLayout;
