@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AdminLayout from "../../layouts/AdminLayout";
 import { getAdminStats } from "../../services/paperService";
 
 function AdminDashboard() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     total: 0,
     submitted: 0,
@@ -45,19 +47,71 @@ function AdminDashboard() {
       <h2 style={titleStyle}>Editor Dashboard</h2>
 
       <div style={gridStyle}>
-        <StatCard title="Total Papers" value={stats.total} />
-        <StatCard title="Submitted" value={stats.submitted} />
-        <StatCard title="Initial Screening" value={stats.screening} />
+        <StatCard
+          title="Total Papers"
+          value={stats.total}
+          onClick={() => navigate("/admin/submissions?status=all")}
+        />
+
+        <StatCard
+          title="Submitted"
+          value={stats.submitted}
+          onClick={() => navigate("/admin/submissions?status=Submitted")}
+        />
+
+        <StatCard
+          title="Initial Screening"
+          value={stats.screening}
+          onClick={() =>
+            navigate("/admin/submissions?status=Initial Screening")
+          }
+        />
+
         <StatCard
           title="Reviewer Assignment"
           value={stats.reviewerAssignment}
+          onClick={() =>
+            navigate("/admin/submissions?status=Reviewer Assignment")
+          }
         />
-        <StatCard title="Review In Progress" value={stats.reviewProgress} />
-        <StatCard title="Minor Revision" value={stats.minorRevision} />
-        <StatCard title="Major Revision" value={stats.majorRevision} />
-        <StatCard title="Accepted" value={stats.accepted} />
-        <StatCard title="Rejected" value={stats.rejected} />
-        <StatCard title="Published" value={stats.published} />
+
+        <StatCard
+          title="Review In Progress"
+          value={stats.reviewProgress}
+          onClick={() =>
+            navigate("/admin/submissions?status=Review In Progress")
+          }
+        />
+
+        <StatCard
+          title="Minor Revision"
+          value={stats.minorRevision}
+          onClick={() => navigate("/admin/submissions?status=Minor Revision")}
+        />
+
+        <StatCard
+          title="Major Revision"
+          value={stats.majorRevision}
+          onClick={() => navigate("/admin/submissions?status=Major Revision")}
+        />
+
+        <StatCard
+          title="Accepted"
+          value={stats.accepted}
+          onClick={() => navigate("/admin/submissions?status=Accepted")}
+        />
+
+        <StatCard
+          title="Rejected"
+          value={stats.rejected}
+          onClick={() => navigate("/admin/submissions?status=Rejected")}
+        />
+
+        <StatCard
+          title="Published"
+          value={stats.published}
+          onClick={() => navigate("/admin/submissions?status=Published")}
+        />
       </div>
       <div style={workflowBox}>
         <h3>Editorial Workflow</h3>
@@ -89,11 +143,25 @@ function AdminDashboard() {
 }
 
 /* ================= COMPONENT ================= */
-function StatCard({ title, value }) {
+function StatCard({ title, value, onClick }) {
   return (
-    <div style={cardStyle}>
+    <div
+      onClick={onClick}
+      style={{
+        background: "linear-gradient(135deg,#0B3C5D,#1E5F8A)",
+        color: "white",
+        padding: "25px",
+        borderRadius: "18px",
+        cursor: "pointer",
+        transition: "0.3s",
+        boxShadow: "0 10px 25px rgba(11,60,93,0.2)",
+      }}
+    >
       <h4>{title}</h4>
-      <h2>{value}</h2>
+
+      <h1>{value}</h1>
+
+      <p>Click to view papers</p>
     </div>
   );
 }
@@ -117,7 +185,6 @@ const cardStyle = {
   borderRadius: "14px",
   boxShadow: "0 8px 20px rgba(0,0,0,0.05)",
 };
-
 
 //Workflow
 const workflowBox = {

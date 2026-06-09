@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import API from "../../services/api";
 import AdminLayout from "../../layouts/AdminLayout";
+import { useSearchParams } from "react-router-dom";
 import {
   publishPaper,
   getAllPapers,
@@ -14,6 +15,9 @@ function Submissions() {
   const [recommendedReviewers, setRecommendedReviewers] = useState({});
   const [selectedPaper, setSelectedPaper] = useState(null);
   const [reviewers, setReviewers] = useState([]);
+  const [searchParams] = useSearchParams();
+
+  const selectedStatus = searchParams.get("status");
 
   useEffect(() => {
     fetchPapers();
@@ -30,7 +34,7 @@ function Submissions() {
         fetchRecommendedReviewers(paper._id);
       });
     } catch (err) {
-      console.log("PAPER ERROR:",err);
+      console.log("PAPER ERROR:", err);
     }
   };
 
@@ -48,19 +52,14 @@ function Submissions() {
     try {
       const res = await API.get(`/admin/recommended-reviewers/${paperId}`);
 
-      console.log(
-      "RECOMMENDED REVIEWERS",
-      paperId,
-      res.data
-    );
+      console.log("RECOMMENDED REVIEWERS", paperId, res.data);
 
       setRecommendedReviewers((prev) => ({
         ...prev,
         [paperId]: res.data,
       }));
     } catch (err) {
-      console.log(
-        "RECOMMENDER ERROR:", err);
+      console.log("RECOMMENDER ERROR:", err);
     }
   };
 
@@ -100,9 +99,17 @@ function Submissions() {
     }
   };
 
+  const filteredSubmissions =
+    selectedStatus && selectedStatus !== "all"
+      ? submissions.filter((paper) => paper.status === selectedStatus)
+      : submissions;
   return (
     <AdminLayout>
-      <h2 style={titleStyle}>All Submissions</h2>
+      <h2 style={titleStyle}>
+        {selectedStatus && selectedStatus !== "all"
+          ? `${selectedStatus} Papers`
+          : "All Submissions"}
+      </h2>
 
       <div style={tableContainer}>
         {submissions.length === 0 ? (
@@ -121,7 +128,7 @@ function Submissions() {
             </thead>
 
             <tbody>
-              {submissions.map((paper) => (
+              {filteredSubmissions.map((paper) => (
                 <tr key={paper._id}>
                   <td style={tdStyle}>{paper.title}</td>
                   <td style={tdStyle}>

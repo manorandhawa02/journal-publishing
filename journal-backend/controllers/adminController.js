@@ -197,9 +197,10 @@ exports.getRecommendedReviewers = async (req, res) => {
 
     rankedReviewers.sort((a, b) => b.score - a.score);
 
-    res.json(rankedReviewers);
+    const filtered = rankedReviewers.filter(
+      (item) => item.reviewer && item.score > 0,
+    );
 
-    const filtered = rankedReviewers.filter((item) => item.reviewer);
     res.json(filtered);
   } catch (error) {
     res.status(500).json({
