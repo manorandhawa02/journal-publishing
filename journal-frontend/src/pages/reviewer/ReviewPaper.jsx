@@ -90,7 +90,10 @@ function ReviewPaper() {
                 <>
                   <button
                     onClick={() =>
-                      window.open(`/pdf-viewer?id=${paper._id}`, "_blank")
+                      window.open(
+                        `/pdf-viewer?url=${encodeURIComponent(paper.fileUrl)}`,
+                        "_blank",
+                      )
                     }
                     style={{
                       padding: "10px 15px",

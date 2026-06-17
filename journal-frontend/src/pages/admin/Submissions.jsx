@@ -103,16 +103,31 @@ function Submissions() {
     selectedStatus && selectedStatus !== "all"
       ? submissions.filter((paper) => paper.status === selectedStatus)
       : submissions;
+
+  const submissionCount = filteredSubmissions.length;
+
   return (
     <AdminLayout>
-      <h2 style={titleStyle}>
-        {selectedStatus && selectedStatus !== "all"
-          ? `${selectedStatus} Papers`
-          : "All Submissions"}
-      </h2>
+      <div style={headerRowStyle}>
+        <div>
+          <h2 style={titleStyle}>
+            {selectedStatus && selectedStatus !== "all"
+              ? `${selectedStatus} Papers`
+              : "All Submissions"}
+          </h2>
+
+          <p style={subtitleStyle}>
+            Review submissions, assign reviewers, and publish accepted papers.
+          </p>
+        </div>
+
+        <div style={countPillStyle}>
+          {submissionCount} {submissionCount === 1 ? "paper" : "papers"}
+        </div>
+      </div>
 
       <div style={tableContainer}>
-        {submissions.length === 0 ? (
+        {filteredSubmissions.length === 0 ? (
           <p>No submissions yet.</p>
         ) : (
           <table style={tableStyle}>
@@ -129,12 +144,16 @@ function Submissions() {
 
             <tbody>
               {filteredSubmissions.map((paper) => (
-                <tr key={paper._id}>
+                <tr key={paper._id} style={rowStyle}>
                   <td style={tdStyle}>{paper.title}</td>
                   <td style={tdStyle}>
                     {paper.submittedBy?.name || "Unknown"}
                   </td>
-                  <td style={tdStyle}>{paper.status}</td>
+                  <td style={tdStyle}>
+                    <span style={getStatusBadgeStyle(paper.status)}>
+                      {paper.status}
+                    </span>
+                  </td>
                   <td style={tdStyle}>{paper.journalCategory}</td>
                   <td style={tdStyle}>
                     {paper.assignedReviewers?.length > 0
@@ -145,8 +164,9 @@ function Submissions() {
                   </td>
 
                   <td style={tdStyle}>
-                    <div style={btnGroup}>
+                    <div style={actionStackStyle}>
                       <select
+                        style={selectStyle}
                         onChange={async (e) => {
                           const reviewerId = e.target.value;
 
@@ -191,31 +211,33 @@ function Submissions() {
                           ))}
                       </select>
 
-                      <button
-                        style={assignBtn}
-                        onClick={() => handleAccept(paper._id)}
-                      >
-                        Accept
-                      </button>
+                        <div style={btnGroup}>
+                          <button
+                            type="button"
+                            style={acceptBtn}
+                            onClick={() => handleAccept(paper._id)}
+                          >
+                            Accept
+                          </button>
 
-                      <button
-                        style={rejectBtn}
-                        onClick={() => handleReject(paper._id)}
-                      >
-                        Reject
-                      </button>
-                      {paper.status === "Accepted" && (
-                        <button
-                          style={{
-                            ...assignBtn,
-                            marginLeft: "10px",
-                            backgroundColor: "green",
-                          }}
-                          onClick={() => handlePublish(paper._id)}
-                        >
-                          Publish
-                        </button>
-                      )}
+                          <button
+                            type="button"
+                            style={rejectBtn}
+                            onClick={() => handleReject(paper._id)}
+                          >
+                            Reject
+                          </button>
+
+                          {paper.status === "Accepted" && (
+                            <button
+                              type="button"
+                              style={publishBtn}
+                              onClick={() => handlePublish(paper._id)}
+                            >
+                              Publish
+                            </button>
+                          )}
+                        </div>
                     </div>
                   </td>
                 </tr>
@@ -236,12 +258,37 @@ const titleStyle = {
   fontWeight: "700",
 };
 
+const subtitleStyle = {
+  marginTop: "6px",
+  color: "#64748b",
+  fontSize: "14px",
+};
+
+const headerRowStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: "20px",
+  marginBottom: "18px",
+  flexWrap: "wrap",
+};
+
+const countPillStyle = {
+  background: "#e2e8f0",
+  color: "#0f172a",
+  padding: "10px 14px",
+  borderRadius: "999px",
+  fontWeight: "600",
+  fontSize: "14px",
+};
+
 const tableContainer = {
   backgroundColor: "white",
-  padding: "30px",
-  borderRadius: "14px",
-  boxShadow: "0 8px 20px rgba(0,0,0,0.05)",
+  padding: "22px",
+  borderRadius: "18px",
+  boxShadow: "0 12px 30px rgba(15, 23, 42, 0.08)",
   overflowX: "auto",
+  border: "1px solid #e5e7eb",
 };
 
 const tableStyle = {
@@ -252,22 +299,45 @@ const tableStyle = {
 
 const thStyle = {
   padding: "12px",
-  borderBottom: "1px solid #ddd",
+  borderBottom: "1px solid #dbe3ee",
+  color: "#334155",
+  fontSize: "13px",
+  textTransform: "uppercase",
+  letterSpacing: "0.04em",
 };
 
 const tdStyle = {
   padding: "12px",
-  borderBottom: "1px solid #f2f2f2",
+  borderBottom: "1px solid #eef2f7",
+  verticalAlign: "top",
 };
 
 const btnGroup = {
   display: "flex",
   gap: "10px",
   flexWrap: "wrap",
+  alignItems: "center",
 };
 
-const assignBtn = {
-  padding: "6px 14px",
+const actionStackStyle = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "10px",
+  minWidth: "280px",
+};
+
+const selectStyle = {
+  padding: "10px 12px",
+  borderRadius: "8px",
+  border: "1px solid #cbd5e1",
+  backgroundColor: "#fff",
+  color: "#0f172a",
+  fontSize: "14px",
+  width: "100%",
+};
+
+const acceptBtn = {
+  padding: "8px 14px",
   backgroundColor: "#0B3C5D",
   color: "white",
   border: "none",
@@ -276,8 +346,64 @@ const assignBtn = {
 };
 
 const rejectBtn = {
-  ...assignBtn,
+  padding: "8px 14px",
   backgroundColor: "crimson",
+  color: "white",
+  border: "none",
+  borderRadius: "6px",
+  cursor: "pointer",
+};
+
+const publishBtn = {
+  padding: "8px 14px",
+  backgroundColor: "green",
+  color: "white",
+  border: "none",
+  borderRadius: "6px",
+  cursor: "pointer",
+};
+
+const rowStyle = {
+  transition: "background-color 0.2s ease",
+};
+
+function getStatusBadgeStyle(status) {
+  const base = {
+    display: "inline-flex",
+    alignItems: "center",
+    padding: "6px 10px",
+    borderRadius: "999px",
+    fontSize: "12px",
+    fontWeight: "700",
+    whiteSpace: "nowrap",
+  };
+
+  switch (status) {
+    case "Accepted":
+      return {
+        ...base,
+        backgroundColor: "#dcfce7",
+        color: "#166534",
+      };
+    case "Rejected":
+      return {
+        ...base,
+        backgroundColor: "#fee2e2",
+        color: "#b91c1c",
+      };
+    case "Published":
+      return {
+        ...base,
+        backgroundColor: "#dbeafe",
+        color: "#1d4ed8",
+      };
+    default:
+      return {
+        ...base,
+        backgroundColor: "#e2e8f0",
+        color: "#334155",
+      };
+  }
 };
 
 export default Submissions;

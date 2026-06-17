@@ -1,31 +1,13 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import API from "../services/api";
-// import { loginUser } from "../services/authService";
 import { FcGoogle } from "react-icons/fc";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const navigate = useNavigate();
-
-  // const handleLogin = async (e) => {
-  //   e.preventDefault();
-
-  //   try {
-  //     const data = await loginUser(formData);
-
-  //     localStorage.setItem("token", data.token);
-
-  //     localStorage.setItem("user", JSON.stringify(data.user));
-
-  //     alert("Login successful");
-  //   } catch (err) {
-  //     console.log(err);
-
-  //     alert(err.response?.data?.message || "Login failed");
-  //   }
-  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,12 +18,8 @@ function Login() {
         password,
       });
 
-      console.log(res.data);
-
       localStorage.setItem("token", res.data.token);
-
       localStorage.setItem("role", res.data.user.role);
-
       localStorage.setItem("isAuthenticated", "true");
 
       alert("Login Successful");
@@ -54,121 +32,263 @@ function Login() {
         navigate("/admin");
       }
     } catch (err) {
-      console.log(err);
-
       alert(err.response?.data?.message || "Login Failed");
     }
   };
 
   return (
-    <div
-      className="d-flex justify-content-center align-items-center vh-100"
-      style={{ background: "linear-gradient(135deg, #1e3c72, #2a5298)" }}
-    >
-      <div
-        className="card shadow-lg p-5 border-0"
-        style={{
-          width: "420px",
-          borderRadius: "20px",
-          backdropFilter: "blur(10px)",
-        }}
-      >
-        <h3 className="text-center mb-4">Journal System Login</h3>
+    <div style={pageContainer}>
+      {/* LEFT PANEL */}
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <input
-              type="email"
-              className="form-control"
-              placeholder="Enter Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+      <div style={leftPanel}>
+        <h1 style={brandTitle}>
+          Scientific Journal Platform
+        </h1>
+
+        <p style={brandText}>
+          Publish, Review and Manage scholarly articles
+          through a modern peer-review ecosystem.
+        </p>
+
+        <div style={statsContainer}>
+          <div style={statCard}>
+            <h2>250+</h2>
+            <p>Submissions</p>
           </div>
 
-          <div className="mb-3">
-            <input
-              type="password"
-              className="form-control"
-              placeholder="Enter Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+          <div style={statCard}>
+            <h2>120+</h2>
+            <p>Reviewers</p>
           </div>
 
-          <button
-            className="w-100"
-            style={{
-              backgroundColor: "#0B3C5D",
-              color: "white",
-              padding: "10px",
-              borderRadius: "10px",
-              border: "none",
-              fontWeight: "600",
-            }}
-          >
-            Login
-          </button>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              margin: "20px 0",
-            }}
-          >
-            <div
-              style={{
-                flex: 1,
-                height: "1px",
-                background: "#ddd",
-              }}
-            />
+          <div style={statCard}>
+            <h2>85%</h2>
+            <p>Acceptance</p>
+          </div>
+        </div>
+      </div>
 
-            <span
-              style={{
-                margin: "0 10px",
-                color: "#666",
-                fontSize: "14px",
+      {/* RIGHT PANEL */}
+
+      <div style={rightPanel}>
+        <div style={loginCard}>
+          <h2 style={heading}>Welcome Back</h2>
+
+          <p style={subHeading}>
+            Sign in to continue your journal workflow
+          </p>
+
+          <form onSubmit={handleSubmit}>
+            <div style={inputGroup}>
+              <label>Email Address</label>
+
+              <input
+                type="email"
+                placeholder="Enter Email"
+                value={email}
+                onChange={(e) =>
+                  setEmail(e.target.value)
+                }
+                style={inputStyle}
+                required
+              />
+            </div>
+
+            <div style={inputGroup}>
+              <label>Password</label>
+
+              <input
+                type="password"
+                placeholder="Enter Password"
+                value={password}
+                onChange={(e) =>
+                  setPassword(e.target.value)
+                }
+                style={inputStyle}
+                required
+              />
+            </div>
+
+            <button type="submit" style={loginBtn}>
+              Login
+            </button>
+
+            {/* Divider */}
+
+            <div style={divider}>
+              <div style={dividerLine}></div>
+
+              <span>OR</span>
+
+              <div style={dividerLine}></div>
+            </div>
+
+            {/* Google Login */}
+
+            <button
+              type="button"
+              onClick={() => {
+                window.location.href =
+                  "http://localhost:5000/api/auth/google";
               }}
+              style={googleBtn}
             >
-              OR
-            </span>
+              <FcGoogle size={24} />
+              Continue with Google
+            </button>
 
-            <div
-              style={{
-                flex: 1,
-                height: "1px",
-                background: "#ddd",
-              }}
-            />
-          </div>
+            <p style={signupText}>
+              Don't have an account?
 
-          <button
-            type="button"
-            onClick={() => {
-              window.location.href = "http://localhost:5000/api/auth/google";
-            }}
-            style={{
-              width: "100%",
-              padding: "10px",
-              borderRadius: "10px",
-              border: "1px solid #ddd",
-              background: "white",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "10px",
-            }}
-          >
-            <FcGoogle size={22} />
-            Continue with Google
-          </button>
-        </form>
+              <Link
+                to="/signup"
+                style={signupLink}
+              >
+                Create Account
+              </Link>
+            </p>
+          </form>
+        </div>
       </div>
     </div>
   );
 }
+
+/* ================= STYLES ================= */
+
+const pageContainer = {
+  minHeight: "100vh",
+  display: "flex",
+  background:
+    "linear-gradient(135deg,#071B2E,#0B3C5D,#328CC1)",
+};
+
+const leftPanel = {
+  flex: 1,
+  color: "white",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  padding: "80px",
+};
+
+const brandTitle = {
+  fontSize: "54px",
+  fontWeight: "700",
+  marginBottom: "20px",
+};
+
+const brandText = {
+  fontSize: "18px",
+  maxWidth: "600px",
+  lineHeight: "1.8",
+  opacity: 0.9,
+};
+
+const statsContainer = {
+  display: "flex",
+  gap: "20px",
+  marginTop: "50px",
+  flexWrap: "wrap",
+};
+
+const statCard = {
+  background: "rgba(255,255,255,0.12)",
+  padding: "25px",
+  borderRadius: "16px",
+  backdropFilter: "blur(8px)",
+  minWidth: "140px",
+};
+
+const rightPanel = {
+  width: "500px",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  padding: "30px",
+};
+
+const loginCard = {
+  width: "100%",
+  background: "rgba(255,255,255,0.95)",
+  borderRadius: "24px",
+  padding: "45px",
+  boxShadow: "0 20px 50px rgba(0,0,0,0.25)",
+};
+
+const heading = {
+  textAlign: "center",
+  fontWeight: "700",
+  marginBottom: "10px",
+  color: "#0B3C5D",
+};
+
+const subHeading = {
+  textAlign: "center",
+  color: "#666",
+  marginBottom: "30px",
+};
+
+const inputGroup = {
+  marginBottom: "20px",
+};
+
+const inputStyle = {
+  width: "100%",
+  padding: "14px",
+  borderRadius: "12px",
+  border: "1px solid #ddd",
+  marginTop: "8px",
+  outline: "none",
+};
+
+const loginBtn = {
+  width: "100%",
+  padding: "14px",
+  border: "none",
+  borderRadius: "12px",
+  background: "#0B3C5D",
+  color: "white",
+  fontWeight: "600",
+  marginTop: "10px",
+};
+
+const divider = {
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+  margin: "25px 0",
+};
+
+const dividerLine = {
+  flex: 1,
+  height: "1px",
+  background: "#ddd",
+};
+
+const googleBtn = {
+  width: "100%",
+  padding: "14px",
+  borderRadius: "12px",
+  border: "1px solid #ddd",
+  background: "white",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  gap: "10px",
+  cursor: "pointer",
+};
+
+const signupText = {
+  textAlign: "center",
+  marginTop: "25px",
+};
+
+const signupLink = {
+  marginLeft: "6px",
+  color: "#0B3C5D",
+  textDecoration: "none",
+  fontWeight: "600",
+};
 
 export default Login;

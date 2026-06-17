@@ -2,6 +2,7 @@ const cloudinary = require("../config/cloudinary");
 const Paper = require("../models/Paper");
 const sendEmail = require("../utils/mailer");
 const User = require("../models/User");
+const { assertValidPdfFile } = require("../utils/pdfValidation");
 
 // ================= UPLOAD PAPER =================
 exports.uploadPaper = async (req, res) => {
@@ -9,6 +10,9 @@ exports.uploadPaper = async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ message: "No file received" });
     }
+
+    await assertValidPdfFile(req.file.path);
+
     console.log("REQ FILE:", req.file);
     const result = await cloudinary.uploader.upload(req.file.path, {
       resource_type: "raw",
@@ -237,6 +241,8 @@ exports.submitRevision = async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
+
+    await assertValidPdfFile(req.file.path);
 
     const result = await cloudinary.uploader.upload(req.file.path, {
       resource_type: "raw",

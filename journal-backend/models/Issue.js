@@ -8,6 +8,8 @@ const issueSchema = new mongoose.Schema(
 
     year: Number,
 
+    pdfUrl: String,
+
     papers: [
       {
         type: mongoose.Schema.Types.ObjectId,

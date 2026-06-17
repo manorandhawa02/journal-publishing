@@ -83,7 +83,10 @@ function PublishedPaper() {
 
                 <button
                   onClick={() =>
-                    window.open(`/pdf-viewer?id=${p._id}`, "_blank")
+                    window.open(
+                      `/pdf-viewer?url=${encodeURIComponent(p.fileUrl)}`,
+                      "_blank",
+                    )
                   }
                   style={btnStyle}
                 >
@@ -133,6 +136,9 @@ const cardStyle = {
   padding: "20px",
   borderRadius: "12px",
   boxShadow: "0 6px 15px rgba(0,0,0,0.05)",
+  display: "flex",
+  flexDirection: "column",
+  height: "100%",
 };
 
 const metaStyle = {
@@ -143,16 +149,20 @@ const metaStyle = {
 const abstractStyle = {
   fontSize: "13px",
   marginTop: "10px",
+  flex: "1 1 auto",
 };
 
 const btnStyle = {
-  display: "inline-block",
-  marginTop: "10px",
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "8px",
+  marginTop: "auto",
   padding: "8px 12px",
   background: "#2563eb",
   color: "white",
   borderRadius: "6px",
   textDecoration: "none",
+  width: "fit-content",
 };
 
 export default PublishedPaper;

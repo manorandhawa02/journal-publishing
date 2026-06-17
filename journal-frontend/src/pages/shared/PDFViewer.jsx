@@ -1,20 +1,15 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Document, Page, pdfjs } from "react-pdf";
-import "react-pdf/dist/Page/AnnotationLayer.css";
 import { getPaperById } from "../../services/paperService";
-
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 function PDFViewer({ fileUrl: propFileUrl }) {
   const [params] = useSearchParams();
 
   const id = params.get("id"); // paper id (IMPORTANT)
+  const urlParam = params.get("url");
 
-  const [url, setUrl] = useState(propFileUrl || null);
-  const [numPages, setNumPages] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1);
-  const [loading, setLoading] = useState(!propFileUrl);
+  const [url, setUrl] = useState(propFileUrl || urlParam || null);
+  const [loading, setLoading] = useState(!(propFileUrl || urlParam));
   const [error, setError] = useState(null);
 
   // ================= FETCH PAPER DATA =================
@@ -48,6 +43,12 @@ function PDFViewer({ fileUrl: propFileUrl }) {
       return;
     }
 
+    if (urlParam) {
+      setUrl(urlParam);
+      setLoading(false);
+      return;
+    }
+
     // Otherwise fetch the paper to get the fileUrl
     if (id) {
       fetchPaperUrl();
@@ -55,11 +56,7 @@ function PDFViewer({ fileUrl: propFileUrl }) {
       setError("No paper ID or file URL provided");
       setLoading(false);
     }
-  }, [id, propFileUrl]);
-
-  function onDocumentLoadSuccess({ numPages }) {
-    setNumPages(numPages);
-  }
+  }, [id, propFileUrl, urlParam]);
 
   if (loading) {
     return <h3 style={{ textAlign: "center", padding: "20px" }}>Loading PDF...</h3>;
@@ -74,42 +71,58 @@ function PDFViewer({ fileUrl: propFileUrl }) {
   }
 
   return (
-    <div style={{ textAlign: "center", padding: "10px" }}>
-      {/* ================= PDF VIEWER ================= */}
-      <Document file={url} onLoadSuccess={onDocumentLoadSuccess}>
-        <Page pageNumber={pageNumber} />
-      </Document>
-
-      {/* ================= CONTROLS ================= */}
-      <div style={{ marginTop: 10 }}>
-        <button
-          disabled={pageNumber <= 1}
-          onClick={() => setPageNumber(pageNumber - 1)}
-        >
-          Prev
-        </button>
-
-        <span style={{ margin: "0 10px" }}>
-          Page {pageNumber} / {numPages}
-        </span>
-
-        <button
-          disabled={pageNumber >= numPages}
-          onClick={() => setPageNumber(pageNumber + 1)}
-        >
-          Next
-        </button>
-      </div>
-
-      {/* ================= DOWNLOAD ================= */}
-      <a
-        href={url}
-        target="_blank"
-        rel="noreferrer"
-        style={{ display: "block", marginTop: 10 }}
+    <div style={{ padding: "16px", background: "#0f172a", minHeight: "100vh" }}>
+      <div
+        style={{
+          maxWidth: "1100px",
+          margin: "0 auto",
+          background: "white",
+          borderRadius: "16px",
+          overflow: "hidden",
+          boxShadow: "0 18px 50px rgba(15, 23, 42, 0.18)",
+        }}
       >
-        Download PDF
-      </a>
+        <div
+          style={{
+            padding: "14px 18px",
+            borderBottom: "1px solid #e5e7eb",
+            display: "flex",
+            gap: "12px",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
+          <div>
+            <strong style={{ color: "#0B3C5D" }}>PDF Preview</strong>
+            <div style={{ fontSize: "13px", color: "#64748b" }}>
+              If the PDF does not render here, use the download link.
+            </div>
+          </div>
+
+          <a
+            href={url}
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              padding: "10px 14px",
+              borderRadius: "8px",
+              background: "#0B3C5D",
+              color: "white",
+              textDecoration: "none",
+              fontWeight: 600,
+            }}
+          >
+            Download PDF
+          </a>
+        </div>
+
+        <iframe
+          src={url}
+          title="PDF Viewer"
+          style={{ width: "100%", height: "84vh", border: "none", display: "block" }}
+        />
+      </div>
     </div>
   );
 }

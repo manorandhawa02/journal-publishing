@@ -51,14 +51,7 @@ function App() {
 
         <Route path="/reviewer/profile" element={<ReviewerProfile />} />
 
-        <Route
-          path="/pdf-viewer"
-          element={
-            <ProtectedRoute allowedRoles={["admin", "reviewer"]}>
-              <PDFViewer />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/pdf-viewer" element={<PDFViewer />} />
 
         {/* Protected Reviewer Route */}
         <Route
